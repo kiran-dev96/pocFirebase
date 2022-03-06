@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "358521956746",
+    "project_id": "pocfirebase-8b225",
+    "storage_bucket": "pocfirebase-8b225.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:358521956746:android:cde1f12abf872234930073",
+        "android_client_info": {
+          "package_name": "com.pocfirebase"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "358521956746-7pc9lct6hqmg0ita84d8qmj50redu7ds.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD0Y40NsRgeuvIudJBsTJaY6BmrU7zyDeY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "358521956746-7pc9lct6hqmg0ita84d8qmj50redu7ds.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
