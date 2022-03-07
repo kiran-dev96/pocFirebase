@@ -55,6 +55,10 @@ const Shows = () => {
     console.log('checked----->');
     let isInit = await trackPlayerInit();
     setIsTrackPlayerInit(isInit);
+    let trackIndex = await TrackPlayer.getCurrentTrack();
+    let trackObject = await TrackPlayer.getTrack(trackIndex);
+    console.log(`Title: ${trackObject.title}`);
+    setTitle(trackObject.title);
   };
 
   useEffect(() => {
@@ -68,6 +72,7 @@ const Shows = () => {
 
   //the value of the slider should be between 0 and 1
   const [sliderValue, setSliderValue] = useState(0);
+  const [title, setTitle] = useState('');
 
   //flag to check whether the use is sliding the seekbar or not
   const [isSeeking, setIsSeeking] = useState(false);
@@ -120,11 +125,18 @@ const Shows = () => {
   const skipNext = async () => {
     await TrackPlayer.skipToNext();
     // console.log('Next');
+    let trackIndex = await TrackPlayer.getCurrentTrack();
+    let trackObject = await TrackPlayer.getTrack(trackIndex);
+    console.log(`Title: ${trackObject.title}`);
+    setTitle(trackObject.title);
   };
 
   const skipPrev = async () => {
     await TrackPlayer.skipToPrevious();
-    // console.log('Prev');
+    let trackIndex = await TrackPlayer.getCurrentTrack();
+    let trackObject = await TrackPlayer.getTrack(trackIndex);
+    console.log(`Title: ${trackObject.title}`);
+    setTitle(trackObject.title);
   };
 
   const renderEpisodelist = (item, index) => {
@@ -168,7 +180,7 @@ const Shows = () => {
         //   <ScrollView style={{flex: 1}}>
         <>
           {Store.episodePresent && playInTandom() && (
-            <View style={{marginTop: 100}}>
+            <>
               <TouchableOpacity
                 onPress={() => {
                   Store.backNavigate();
@@ -181,18 +193,25 @@ const Shows = () => {
                   Back
                 </Text>
               </TouchableOpacity>
-              <Text style={{textAlign: 'center', marginBottom: 10}}>
-                Music Player
-              </Text>
-              <View style={{marginHorizontal: 20}}>
-                <Button
-                  title={isPlaying ? 'Pause' : 'Play'}
-                  onPress={onButtonPressed}
-                  // disabled={!isTrackPlayerInit}
-                />
-              </View>
-              {/* defining our slider here */}
-              {/* <Slider
+              <View
+                style={{
+                  marginTop: 100,
+                  borderWidth: 2,
+                  marginHorizontal: 20,
+                  borderRadius: 10,
+                }}>
+                <Text style={{textAlign: 'center', marginBottom: 10}}>
+                  {title}
+                </Text>
+                <View style={{marginHorizontal: 20}}>
+                  <Button
+                    title={isPlaying ? 'Pause' : 'Play'}
+                    onPress={onButtonPressed}
+                    // disabled={!isTrackPlayerInit}
+                  />
+                </View>
+                {/* defining our slider here */}
+                {/* <Slider
         style={{width: 400, height: 40}}
         minimumValue={0}
         maximumValue={1}
@@ -203,37 +222,36 @@ const Shows = () => {
         onSlidingComplete={slidingCompleted}
       /> */}
 
-              <View
-                style={{
-                  flexDirection: 'row',
-                  marginHorizontal: 25,
-                  justifyContent: 'space-around',
-                }}>
-                <Button onPress={jumpForward} title={'+5sec'} />
-                <Button onPress={jumpBackward} title={'-5sec'} />
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    marginHorizontal: 25,
+                    justifyContent: 'space-around',
+                  }}>
+                  <Button onPress={jumpBackward} title={'-5sec'} />
+                  <Button onPress={jumpForward} title={'+5sec'} />
+                </View>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    marginHorizontal: 25,
+                    justifyContent: 'space-around',
+                  }}>
+                  <Button onPress={skipPrev} title={'Prev'} />
+                  <Button onPress={skipNext} title={'Next'} />
+                </View>
               </View>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  marginHorizontal: 25,
-                  justifyContent: 'space-around',
-                }}>
-                <Button onPress={skipPrev} title={'Prev'} />
-                <Button onPress={skipNext} title={'Next'} />
-              </View>
-            </View>
+            </>
           )}
           <View
             style={{marginTop: Store.episodePresent ? 0 : 100, marginLeft: 20}}>
-            <Text style={{fontSize: 40}}>Omny </Text>
-
             <Text style={{fontSize: 20}}>
-              {Store.episodePresent ? 'Episodes ->' : 'All Programs ->'}
+              {Store.episodePresent ? '' : 'All Programs ->'}
             </Text>
           </View>
           {Store.episodePresent ? (
             <View>
-              <Text>I am present</Text>
+              <Text></Text>
             </View>
           ) : (
             <>
