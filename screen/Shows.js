@@ -1,4 +1,6 @@
 import React, {useEffect, useState} from 'react';
+import TrackPlayer, {Capability} from 'react-native-track-player';
+import {useProgress} from 'react-native-track-player/lib/hooks';
 import {
   Text,
   View,
@@ -25,11 +27,54 @@ let category = [
   'News',
 ];
 
+const trackPlayerInit = async () => {
+  // console.log('now what', Store.episodes);
+  await TrackPlayer.setupPlayer();
+
+  await TrackPlayer.updateOptions({
+    capabilities: [
+      Capability.Play,
+      Capability.Pause,
+      Capability.JumpBackward,
+      Capability.JumpForward,
+      Capability.SkipToNext,
+      Capability.SkipToPrevious,
+    ],
+  });
+
+  await TrackPlayer.add(Store.episodes);
+  return true;
+};
+
 const Shows = () => {
   useEffect(() => {
     Store.fetchData();
   }, []);
 
+  const playInTandom = async () => {
+    console.log('checked----->');
+    let isInit = await trackPlayerInit();
+    setIsTrackPlayerInit(isInit);
+  };
+
+  useEffect(() => {
+    if (!isSeeking && position && duration) {
+      setSliderValue(position / duration);
+    }
+  }, [position, duration]);
+
+  const [isTrackPlayerInit, setIsTrackPlayerInit] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  //the value of the slider should be between 0 and 1
+  const [sliderValue, setSliderValue] = useState(0);
+
+  //flag to check whether the use is sliding the seekbar or not
+  const [isSeeking, setIsSeeking] = useState(false);
+
+  //useTrackPlayerProgress is a hook which provides the current position and duration of the track player.
+  //These values will update every 250ms
+  const {position, bufferedPosition, duration} = useProgress(250, null);
   const [search, setSearch] = useState('');
   const [episodesearch, setSepisodesearch] = useState('');
 
@@ -52,6 +97,36 @@ const Shows = () => {
     );
   };
 
+  const onButtonPressed = () => {
+    if (!isPlaying) {
+      TrackPlayer.play();
+      setIsPlaying(true);
+    } else {
+      TrackPlayer.pause();
+      setIsPlaying(false);
+    }
+  };
+  //this function is called when the user starts to slide the seekbar
+  const slidingStarted = () => {
+    setIsSeeking(true);
+  };
+  //this function is called when the user stops sliding the seekbar
+  const slidingCompleted = async value => {
+    await TrackPlayer.seekTo(value * duration);
+    setSliderValue(value);
+    setIsSeeking(false);
+  };
+
+  const skipNext = async () => {
+    await TrackPlayer.skipToNext();
+    // console.log('Next');
+  };
+
+  const skipPrev = async () => {
+    await TrackPlayer.skipToPrevious();
+    // console.log('Prev');
+  };
+
   const renderEpisodelist = (item, index) => {
     return (
       <View
@@ -67,17 +142,33 @@ const Shows = () => {
     );
   };
 
+  const jumpForward = async () => {
+    let newPosition = await TrackPlayer.getPosition();
+    let duration = await TrackPlayer.getDuration();
+    newPosition += 10;
+    if (newPosition > duration) {
+      newPosition = duration;
+    }
+    TrackPlayer.seekTo(newPosition);
+  };
+
+  const jumpBackward = async () => {
+    let newPosition = await TrackPlayer.getPosition();
+    newPosition -= 10;
+    if (newPosition < 0) {
+      newPosition = 0;
+    }
+    TrackPlayer.seekTo(newPosition);
+  };
+
   return (
     <Observer>
       {() => (
         // <SafeAreaView style={{flex: 1}}>
         //   <ScrollView style={{flex: 1}}>
         <>
-          {Store.episodePresent && (
-            <View
-              style={{
-                marginBottom: 820,
-              }}>
+          {Store.episodePresent && playInTandom() && (
+            <View style={{marginTop: 100}}>
               <TouchableOpacity
                 onPress={() => {
                   Store.backNavigate();
@@ -90,30 +181,45 @@ const Shows = () => {
                   Back
                 </Text>
               </TouchableOpacity>
+              <Text style={{textAlign: 'center', marginBottom: 10}}>
+                Music Player
+              </Text>
+              <View style={{marginHorizontal: 20}}>
+                <Button
+                  title={isPlaying ? 'Pause' : 'Play'}
+                  onPress={onButtonPressed}
+                  // disabled={!isTrackPlayerInit}
+                />
+              </View>
+              {/* defining our slider here */}
+              {/* <Slider
+        style={{width: 400, height: 40}}
+        minimumValue={0}
+        maximumValue={1}
+        value={sliderValue}
+        minimumTrackTintColor="#111000"
+        maximumTrackTintColor="#000000"
+        onSlidingStart={slidingStarted}
+        onSlidingComplete={slidingCompleted}
+      /> */}
+
               <View
                 style={{
-                  marginTop: 20,
-                  paddingHorizontal: 20,
+                  flexDirection: 'row',
+                  marginHorizontal: 25,
+                  justifyContent: 'space-around',
                 }}>
-                <FlatList
-                  data={Store.episodes}
-                  // keyExtractor={(item) => item.id}
-                  // extraData={Store.data}
-                  renderItem={(item, index) =>
-                    renderEpisodelist(item.item, index)
-                  }
-                  ListEmptyComponent={() => {
-                    return (
-                      <View
-                        style={{
-                          flexDirection: 'row',
-                          justifyContent: 'center',
-                        }}>
-                        <Text>No Data Found</Text>
-                      </View>
-                    );
-                  }}
-                />
+                <Button onPress={jumpForward} title={'+5sec'} />
+                <Button onPress={jumpBackward} title={'-5sec'} />
+              </View>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  marginHorizontal: 25,
+                  justifyContent: 'space-around',
+                }}>
+                <Button onPress={skipPrev} title={'Prev'} />
+                <Button onPress={skipNext} title={'Next'} />
               </View>
             </View>
           )}

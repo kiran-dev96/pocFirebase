@@ -95,9 +95,29 @@ class Store {
       //   this.data = snap._docs;
       // this.data = snap._docs;
       // console.log('----->', snap._docs.length);
+      let clips = [];
       if (snap._docs.length > 0) {
         this.episodePresent = true;
-        this.episodes = snap._docs;
+        // this.episodes = snap._docs;
+
+        snap._docs.forEach((element, key) => {
+          // console.log('---->clips', element._data)
+          let singleElement = {
+            id: key + 1,
+            url: element._data.audio_url,
+            type: element._data.episode_type,
+            title: element._data.title,
+            album: 'My Album',
+            artist: 'Rakesh Sahu',
+            artwork: '',
+            duration: element._data.duration_seconds,
+          };
+
+          clips.push(singleElement);
+        });
+
+        console.log('----->clips', clips);
+        this.episodes = clips;
       }
     });
   };
